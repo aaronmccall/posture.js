@@ -1,0 +1,16 @@
+{
+  "author": "Aaron McCall <aaron@andyet.net>",
+  "name": "posture.js",
+  "description": "Data tools for Backbone",
+  "version": "0.0.0",
+  "homepage": "https:/github.com/aaronmccall/posture.js",
+  "dependencies": {
+    "underscore": "*",
+    "backbone": "*"  
+  },
+  "devDependencies": {},
+  "optionalDependencies": {},
+  "engines": {
+    "node": "*"
+  }
+}

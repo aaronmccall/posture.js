@@ -1,0 +1,149 @@
+<!DOCTYPE html><head><style type="text/css">pre code{display:block;padding:.5em;color:black;background:#f8f8ff}pre .comment,pre .template_comment,pre .diff .header,pre .javadoc{color:#998;font-style:italic}pre .keyword,pre .css .rule .keyword,pre .winutils,pre .javascript .title,pre .lisp .title,pre .subst{color:black;font-weight:bold}pre .number,pre .hexcolor{color:#40a070}pre .string,pre .tag .value,pre .phpdoc,pre .tex .formula{color:#d14}pre .title,pre .id{color:#900;font-weight:bold}pre .javascript .title,pre .lisp .title,pre .subst{font-weight:normal}pre .class .title,pre .haskell .label,pre .tex .command{color:#458;font-weight:bold}pre .tag,pre .tag .title,pre .rules .property,pre .django .tag .keyword{color:navy;font-weight:normal}pre .attribute,pre .variable,pre .instancevar,pre .lisp .body{color:teal}pre .regexp{color:#009926}pre .class{color:#458;font-weight:bold}pre .symbol,pre .ruby .symbol .string,pre .ruby .symbol .keyword,pre .ruby .symbol .keymethods,pre .lisp .keyword,pre .tex .special,pre .input_number{color:#990073}pre .builtin,pre .built_in,pre .lisp .title{color:#0086b3}pre .preprocessor,pre .pi,pre .doctype,pre .shebang,pre .cdata{color:#999;font-weight:bold}pre .deletion{background:#fdd}pre .addition{background:#dfd}pre .diff .change{background:#0086b3}pre .chunk{color:#aaa}pre .tex .formula{opacity:.5}#docs {margin:auto}.block {clear:both}.comment {float:left;width:50%;clear:none}.code {float:right;width:49%;clear: right}
+</style></head><body><div id="docs"><div class="block"><div class="comment"></div><div class="code"><pre><code><span class="keyword">var</span> Posture, isFn, root, toArray, _;
+root = <span class="keyword">this</span>;
+<span class="keyword">if</span> ((<span class="keyword">typeof</span> exports !== <span class="string">"undefined"</span> &amp;&amp; exports !== <span class="literal">null</span>)) {
+  Posture = exports;
+} <span class="keyword">else</span> {
+  Posture = root.Posture = {};
+}
+_ = root._;
+<span class="keyword">if</span> (!_ &amp;&amp; (<span class="keyword">typeof</span> require !== <span class="string">"undefined"</span> &amp;&amp; require !== <span class="literal">null</span>)) {
+  _ = require(<span class="string">'underscore'</span>)._;
+}
+isFn = _.isFunction;
+toArray = _.toArray;
+<span class="keyword">var</span> decorator, noFuncs;
+<span class="keyword">var</span> __slice = Array.prototype.slice;
+noFuncs = <span class="function"><span class="keyword">function</span><span class="params">(options)</span> {</span>
+  <span class="keyword">var</span> name, _i, _len, _ref;
+  _ref = [<span class="string">'before'</span>, <span class="string">'after'</span>, <span class="string">'wrap'</span>];
+  <span class="keyword">for</span> (_i = <span class="number">0</span>, _len = _ref.length; _i &lt; _len; _i++) {
+    name = _ref[_i];
+    <span class="keyword">if</span> (!options[name] &amp;&amp; isFn(options[name])) {
+      <span class="keyword">return</span> <span class="literal">false</span>;
+    }
+  }
+  <span class="keyword">return</span> <span class="literal">true</span>;
+};
+decorator = <span class="function"><span class="keyword">function</span><span class="params">(options)</span> {</span>
+  <span class="keyword">var</span> final_func;
+  <span class="keyword">if</span> (!options || !options.func || !isFn(options.func) || noFuncs(options) === <span class="literal">true</span>) {
+    <span class="keyword">throw</span> <span class="string">"A function to decorate and one or more of a before, after or wrapping function must be specified."</span>;
+  }
+  <span class="keyword">if</span> (options.wrap &amp;&amp; isFn(options.wrap)) {
+    options.func = (<span class="function"><span class="keyword">function</span><span class="params">(opts)</span> {</span>
+      <span class="keyword">return</span> <span class="function"><span class="keyword">function</span><span class="params">()</span> {</span>
+        <span class="keyword">var</span> args;
+        args = <span class="number">1</span> &lt;= arguments.length ? __slice.call(arguments, <span class="number">0</span>) : [];
+        args.unshift(opts.func);
+        <span class="keyword">return</span> opts.wrap.apply(opts.context || <span class="keyword">this</span>, args);
+      };
+    })(options);
+  }
+  final_func = <span class="function"><span class="keyword">function</span><span class="params">()</span> {</span>
+    <span class="keyword">var</span> after_<span class="keyword">return</span>, args, before_<span class="keyword">return</span>, orig_args, orig_<span class="keyword">return</span>;
+    args = <span class="number">1</span> &lt;= arguments.length ? __slice.call(arguments, <span class="number">0</span>) : [];
+    <span class="keyword">if</span> (options.before) {
+      before_<span class="keyword">return</span> = options.before.apply(<span class="keyword">this</span>, args);
+    }
+    <span class="keyword">if</span> (options.chain_<span class="keyword">return</span>s) {
+      orig_args = args;
+      args = before_<span class="keyword">return</span>;
+    }
+    orig_<span class="keyword">return</span> = options.func.apply(<span class="keyword">this</span>, args);
+    <span class="keyword">if</span> (options.chain_<span class="keyword">return</span>s) {
+      args = orig_args.concat([orig_<span class="keyword">return</span>]);
+    }
+    after_<span class="keyword">return</span> = options.after ? options.after.apply(<span class="keyword">this</span>, args) : orig_<span class="keyword">return</span>;
+    <span class="keyword">if</span> (options.chain_<span class="keyword">return</span>s) {
+      <span class="keyword">return</span> after_<span class="keyword">return</span>;
+    } <span class="keyword">else</span> {
+      <span class="keyword">return</span> orig_<span class="keyword">return</span>;
+    }
+  };
+  <span class="keyword">if</span> (options.context) {
+    <span class="keyword">return</span> _.bind(final_func, options.context);
+  } <span class="keyword">else</span> {
+    <span class="keyword">return</span> final_func;
+  }
+};
+decorator.decorateMethod = <span class="function"><span class="keyword">function</span><span class="params">(obj, methodName, options)</span> {</span>
+  <span class="keyword">if</span> (options.assignToProto &amp;&amp; obj.prototype) {
+    obj = obj.prototype;
+  }
+  <span class="keyword">if</span> (!obj || !methodName || !options || noFuncs(options)) {
+    <span class="keyword">throw</span> <span class="string">"decorateMethod requires an object and method name and one or more of before, after and wrap options"</span>;
+  }
+  _.extend(options, {
+    func: obj[methodName] || <span class="function"><span class="keyword">function</span><span class="params">()</span> {</span>},
+    context: (options.addContext === <span class="literal">true</span> ? obj : <span class="literal">null</span>)
+  });
+  obj[methodname] = decorator(options);
+  <span class="keyword">return</span> <span class="literal">true</span>;
+};
+Posture.Decorator = decorator;
+<span class="keyword">var</span> signals;
+<span class="keyword">var</span> __slice = Array.prototype.slice;
+signals = {
+  extend: <span class="function"><span class="keyword">function</span><span class="params">(target, source)</span> {</span>
+    <span class="keyword">var</span> output;
+    output = {};</code></pre></div></div><div class="block"><div class="comment"><p>Iterate the source callbacks config </p></div><div class="code"><pre><code>    _.each(source, <span class="function"><span class="keyword">function</span><span class="params">(val, name)</span> {</span></code></pre></div></div><div class="block"><div class="comment"><p>The first member of the is either a positional argument: 'before' or 'after' OR a callback. </p></div><div class="code"><pre><code>      <span class="keyword">var</span> after, callbacks, position;
+      position = (target[name] != <span class="literal">null</span>) &amp;&amp; _.isArray(target[name]) &amp;&amp; !isFn(target[name][<span class="number">0</span>]) ? target[name].shift() : <span class="string">'after'</span>;
+      after = position === <span class="string">'after'</span>;
+      callbacks = target[name] || [];</code></pre></div></div><div class="block"><div class="comment"><p>If target has this key in its config, then append or prepend source's callbacks as appropriate </p></div><div class="code"><pre><code>      <span class="keyword">if</span> (target[name] != <span class="literal">null</span>) {
+        <span class="keyword">return</span> output[name] = (after ? source[name] : callbacks).concat(after ? callbacks : source[name]);
+      } <span class="keyword">else</span> {</code></pre></div></div><div class="block"><div class="comment"><p>If not, just copy source's callbacks </p></div><div class="code"><pre><code>        <span class="keyword">return</span> output[name] = [].concat(source[name]);
+      }
+    });
+    _.each(target, <span class="function"><span class="keyword">function</span><span class="params">(val, name)</span> {</span>
+      <span class="keyword">if</span> (!isFn(val[<span class="number">0</span>] &amp;&amp; _.isArray(val[<span class="number">0</span>]))) {
+        val.shift();
+      }
+      <span class="keyword">if</span> (!(source[name] != <span class="literal">null</span>) &amp;&amp; val.length > <span class="number">0</span>) {
+        <span class="keyword">return</span> output[name] = val;
+      }
+    });
+    <span class="keyword">return</span> output;
+  },
+  connect: <span class="function"><span class="keyword">function</span><span class="params">(signal, callback, context)</span> {</span>
+    <span class="keyword">if</span> (context == <span class="literal">null</span>) {
+      context = <span class="keyword">this</span>;
+    }</code></pre></div></div><div class="block"><div class="comment"><p>*<br />    Subscribe to a signal using Backbone.Event's bind<br />    @param {string} signal      The name of the signal<br />    @param {function} callback  The callback that we are binding to the signal<br />    @param {object} context     (optional) The 'this' for the callback</p></div><div class="code"><pre><code>    <span class="keyword">if</span> (<span class="keyword">typeof</span> signal === <span class="string">"string"</span> &amp;&amp; isFn(callback)) {
+      <span class="keyword">return</span> <span class="keyword">this</span>.bind(<span class="string">"signals:"</span> + signal, callback, context);
+    }
+    <span class="keyword">throw</span> <span class="string">"connect takes two arguments:\n1. signal: a string identifying the signal to listen for, and\n2. callback: a function to handle the signal\nArguments were signal: "</span> + signal + <span class="string">" "</span> + (signal.toString()) + <span class="string">" and callback "</span> + callback;
+  },
+  signal: <span class="function"><span class="keyword">function</span><span class="params">()</span> {</span>
+    <span class="keyword">var</span> args, signal;
+    signal = arguments[<span class="number">0</span>], args = <span class="number">2</span> &lt;= arguments.length ? __slice.call(arguments, <span class="number">1</span>) : [];</code></pre></div></div><div class="block"><div class="comment"><p>*<br />    Publish a signal and it's arguments via Backbone.Event's trigger<br />    @param {string} signal  The name of the signal<br />    @param {array} args     The rest of the arguments</p></div><div class="code"><pre><code>    <span class="keyword">return</span> <span class="keyword">this</span>.trigger.apply(<span class="keyword">this</span>, [<span class="string">"signals:"</span> + signal].concat(__slice.call(args)));
+  },
+  init: <span class="function"><span class="keyword">function</span><span class="params">(obj)</span> {</span></code></pre></div></div><div class="block"><div class="comment"><p>*<br />    Iterate the signal callback config (@connect_to) of this instance and connect callbacks to signals.<br />    @param: {object} A Backbone.Model, Backbone.Collection, Backbone.View or Backbone.Router instance<br />    <em>/    if (obj.connect_to) {<br />      obj.prototype.connect = this.connect;<br />      obj.prototype.signal = this.signal;<br />      return _.each(obj.connect_to, function(list, signal) {<br />        return _.each(list, function(callback) {<br />          if (isFn(callback)) {<br />            return this.connect(signal, callback);<br />          }<br />        }, this);<br />      }, this);<br />    }<br />  }<br />};<br />Posture.Signal = signals;<br />var accessors;<br />accessors = {<br />  init: function(obj) {<br />    return _.each(obj.prototype.defaults, function(val, name) {<br />      obj.prototype[name] = function(newVal, options, context) {<br />        var payload, to_return;<br />        if (context == null) {<br />          context = this;<br />        }<br />        switch (newVal) {<br />          case null:<br />          case void 0:<br />            to_return = this.get(name);<br />            break;<br />          case _:<br />            to_return = _(this.get(name)).chain();<br />            break;<br />          case 'subscribe':<br />            if (isFn(options)) {<br />              to_return = this.bind("change:" + name, options, context);<br />            } else {<br />              payload = {};<br />              payload[name] = newVal;<br />              to_return = this.set(payload, options);<br />            }<br />            break;<br />          case isFn(newVal):<br />            payload = {};<br />            payload[name] = !options || !options.func_is_val ? newVal() : newVal;<br />            to_return = this.set(payload, options);<br />            break;<br />          default:<br />            payload = {};<br />            payload[name] = newVal;<br />            to_return = this.set(payload, options);<br />        }<br />        return to_return;<br />      };<br />      return obj.prototype[name].accessorized = true;<br />    });<br />  }<br />};<br />Posture.Accessors = accessors;<br />var filters;<br />filters = {<br />  integer: function(val, clean_first) {<br />    /</em>*<br />    Converts a value to an integer. If the value cannot convert, returns 0.<br />    @param: {variable} val          Value to convert<br />    @param: {boolean} clean_first   Should we strip out non-numeric characters?<br />    <em>/    val = !clean_first ? val : filters.regex(val, /[^\d.]+/g, '');<br />    return parseInt(val) || 0;<br />  },<br />  decimal: function(val, clean_first) {<br />    /</em>*<br />    Converts a value to an floating point number. If the value cannot convert, returns 0.<br />    @param: {variable} val          Value to convert<br />    @param: {boolean} clean_first   Should we strip out non-numeric characters?<br />    <em>/    val = !clean_first ? val : filters.regex(val, /[^\d.]+/g, '');<br />    return parseFloat(val) || 0;<br />  },<br />  alpha: function(val, allowwhitespace) {<br />    /</em>*<br />    Remove any characters that are not a-z, A-Z or (optionally) white space characters.<br />    @param: {variable} val              Value to clean<br />    @param: {boolean} allowwhitespace   Should we leave white space characters?</p></div><div class="code"><pre><code>    <span class="keyword">var</span> reg;
+    reg = !allowwhitespace ? <span class="regexp">/[^a-zA-Z]/g</span> : <span class="regexp">/[^\sa-zA-Z]/g</span>;
+    <span class="keyword">return</span> filters.regex(val, reg, <span class="string">''</span>);
+  },
+  alnum: <span class="function"><span class="keyword">function</span><span class="params">(val, allowwhitespace)</span> {</span></code></pre></div></div><div class="block"><div class="comment"><p>*<br />    Remove any characters that are not a-z, A-Z, 0-9 or (optionally) white space characters.<br />    @param: {variable} val              Value to convert<br />    @param: {boolean} allowwhitespace   Should we leave white space characters?</p></div><div class="code"><pre><code>    <span class="keyword">var</span> reg;
+    reg = !allowwhitespace ? <span class="regexp">/^\da-zA-Z/g</span> : <span class="regexp">/^\da-zA-Z\s/g</span>;
+    <span class="keyword">return</span> filters.regex(val, reg, <span class="string">''</span>);
+  },
+  to_json: <span class="function"><span class="keyword">function</span><span class="params">(val)</span> {</span></code></pre></div></div><div class="block"><div class="comment"><p>*<br />    Converts the argument to a JSON representation.<br />    @param: {variable} val Value (string, number, object, array, etc.) to JSONify<br />    <em>/    return JSON.stringify(val) || null;<br />  },<br />  trim: function(val) {<br />    /</em>*<br />    Remove leading and/or trailing white space from a string.<br />    @param {string} val String to trim<br />    <em>/    return filters.regex(val, /^\s+|\s+$/g, '');<br />  },<br />  regex: function(val, pattern, replacement, regex_args) {<br />    /</em>*<br />    Base regex filter method.<br />    @param: {string} val                    String to run the regex filter on.<br />    @param: {string, regex} pattern         Expression to match<br />    @param: {string, function} replacement  Replacement string or replacer function<br />    @param: regex_args {string} regex_args  2nd arg for RegExp constructor, if pattern is a string.<br />    <em>/    pattern = _.isRegExp(pattern) ? pattern : new RegExp('' + pattern, regex_args);<br />    return ('' + val).replace(pattern, replacement);<br />  },<br />  bool: function(val) {<br />    /</em>*<br />    Convert value to boolean in a smarter way than ordinary JavaScript.<br />    @param: {variable} val Value to convert to a boolean</p></div><div class="code"><pre><code>    <span class="keyword">var</span> _ref;
+    <span class="keyword">if</span> (_.isObject(val || _.isArray(val))) {
+      <span class="keyword">return</span> !_.isEmpty(val);
+    }
+    <span class="keyword">if</span> ((_ref = (<span class="string">''</span> + val).toLowerCase()) === <span class="string">'false'</span> || _ref === <span class="string">'no'</span> || _ref === <span class="string">'off'</span> || _ref === <span class="string">'null'</span> || _ref === <span class="string">'0'</span>) {
+      <span class="keyword">return</span> <span class="literal">false</span>;
+    }
+    <span class="keyword">return</span> !!val;
+  }
+};
+Posture.Filter = filters;
+<span class="keyword">var</span> validators;
+<span class="keyword">var</span> __hasProp = Object.prototype.hasOwnProperty, __extends = <span class="function"><span class="keyword">function</span><span class="params">(child, parent)</span> {</span>
+  <span class="keyword">for</span> (<span class="keyword">var</span> key <span class="keyword">in</span> parent) { <span class="keyword">if</span> (__hasProp.call(parent, key)) child[key] = parent[key]; }
+  <span class="function"><span class="keyword">function</span> <span class="title">ctor</span><span class="params">()</span> {</span> <span class="keyword">this</span>.constructor = child; }
+  ctor.prototype = parent.prototype;
+  child.prototype = <span class="keyword">new</span> ctor;
+  child.__super__ = parent.prototype;
+  <span class="keyword">return</span> child;
+};
+validators = {
+  lessThan: <span class="function"><span class="keyword">function</span><span class="params">(val, max, allow_equal)</span> {</span></code></pre></div></div><div class="block"><div class="comment"><p>*<br />    Tests that value is less than (or optionally equal to) a maximum value<br />    @param: {number} val            Value to be tested<br />    @param: {number} max            Maximum value<br />    @param: {boolean} allow_equal   Should allow val to equal max?<br />    <em>/    if ((allow_equal &amp;&amp; val &lt;= max) || val &lt; max) {<br />      return true;<br />    }<br />    throw validators.NotLessThan(val, max);<br />  },<br />  greaterThan: function(val, min, allow_equal) {<br />    /</em>*<br />    Tests that value is greater than (or optionally equal to) a minimum value<br />    @param: {number} val            Value to be tested<br />    @param: {number} min            Minimum value<br />    @param: {boolean} allow_equal   Should allow val to equal min?<br />    <em>/    if (allow_equal &amp;&amp; val >= min || val > min) {<br />      return true;<br />    }<br />    throw validators.NotGreaterThan(val, min);<br />  },<br />  notEmpty: function(val) {<br />    /</em>*<br />    Tests that value is not empty.<br />    @param: {variable} val Value to test for 'emptiness'<br />    <em>/    if (!(_.isEmpty(val)) || (val !== '' &amp;&amp; val !== null &amp;&amp; val !== void 0)) {<br />      return true;<br />    }<br />    throw validators.IsEmpty(val);<br />  },<br />  decimalPlaces: function(val, places, msg) {<br />    var arr;<br />    if (places == null) {<br />      places = 2;<br />    }<br />    arr = Posture.Filter.trim('' + val).split('.');<br />    if (arr.length === 1) {<br />      return true;<br />    }<br />    if (arr.pop().length &lt;= places) {<br />      return true;<br />    }<br />    throw new validators.Invalid(msg || ("'" + val + "' has too many decimal places! Only " + places + " are allowed."));<br />  },<br />  regex: function(val, pattern, msg) {<br />    var reg;<br />    reg = pattern instanceof RegExp ? pattern : new RegExp(pattern);<br />    if (reg.test(val)) {<br />      return true;<br />    }<br />    throw new validators.Invalid(msg || ("'" + val + "' does not fit the required pattern: " + reg));<br />  }<br />};<br />validators.Invalid = (function() {<br />  function Invalid(custom_msg) {<br />    this.custom_msg = custom_msg;<br />  }<br />  Invalid.prototype.toString = function() {<br />    if (isFn(this.custom_msg)) {<br />      return this.custom_msg();<br />    } else {<br />      return this.custom_msg;<br />    }<br />  };<br />  return Invalid;<br />})();<br />validators.NotLessThan = (function() {<br />  __extends(NotLessThan, validators.Invalid);<br />  function NotLessThan(val, max, custom_msg) {<br />    this.val = val;<br />    this.max = max;<br />    this.custom_msg = custom_msg != null ? custom_msg : null;<br />  }<br />  NotLessThan.prototype.message = function() {<br />    if (this.custom_msg) {<br />      return this.custom_msg;<br />    } else {<br />      return "" + this.val + " is greater than the allowed maximum: " + this.max;<br />    }<br />  };<br />  return NotLessThan;<br />})();<br />validators.NotGreaterThan = (function() {<br />  __extends(NotGreaterThan, validators.Invalid);<br />  function NotGreaterThan(val, min, custom_msg) {<br />    this.val = val;<br />    this.min = min;<br />    this.custom_msg = custom_msg != null ? custom_msg : null;<br />  }<br />  NotGreaterThan.prototype.message = function() {<br />    if (this.custom_msg) {<br />      return this.custom_msg;<br />    } else {<br />      return "" + this.val + " is less than the allowed minimum: " + this.max;<br />    }<br />  };<br />  return NotGreaterThan;<br />})();<br />validators.IsEmpty = (function() {<br />  __extends(IsEmpty, validators.Invalid);<br />  function IsEmpty(val, custom_msg) {<br />    this.val = val;<br />    this.custom_msg = custom_msg != null ? custom_msg : null;<br />  }<br />  IsEmpty.prototype.message = function() {<br />    if (this.custom_msg) {<br />      return this.custom_msg;<br />    } else {<br />      return "</em> required";<br />    }<br />  };<br />  return IsEmpty;<br />})();<br />Posture.Validator = validators;<br />Posture.init = _.bind(function(Backbone) {<br />  var defaults;<br />  defaults = {<br />    extend: {<br />      wrap: function(func, protoProps, staticProps) {<br />        var connect_to;<br />        if (protoProps.connect_to) {<br />          connect_to = protoProps.connect_to;<br />          return delete protoProps.connect_to;<br />        }<br />      }<br />    }<br />  };<br />  return _.each(Backbone, function(obj, name) {<br />    if (obj.extend &amp;&amp; isFn(obj.extend)) {<br />      if (this.Decorator &amp;&amp; isFn(this.Decorator.decorateMethod)) {<br />        console.log('about decorate %s extend with Posture magic', name);<br />        return this.Decorator.decorateMethod(obj, 'extend', {});<br />      }<br />    }<br />  }, Posture);<br />});</p></div><div class="code"></div></div></div></body>
