@@ -14,6 +14,14 @@ _ = root._
 # If it wasn't try to `require` it if `require` is a thing.
 _ = require('underscore')._ if not _ and require?
 
+_posture_props =
+  Collection: {}
+  Model: {}
+  Router: {}
+  View: {}
+
+_.extend(Posture, _posture_props)
+
 # Make a short alias to _'s function detector
 isFn = _.isFunction 
 
@@ -40,74 +48,40 @@ Posture.Filter = filters
 
 ###import "validators.coffee" ###
 
-Posture.Validator = validators
-
-_sig_defaults = ['pre', 'post']
-Posture.default_signals = 
-  Model: 
-    initialize: _sig_defaults
-    save: _sig_defaults
-    destroy: _sig_defaults
-  View:
-    initialize: _sig_defaults
-    render: _sig_defaults
-
-
 Posture.enhance = 
-  Model: (obj, options) ->
-    # Apply our model enhancements 
-    proto = obj::
-    Posture.Accessors.init(obj)
+  _default: (obj, ext_args...) ->
+    [protoProps, classProps] = ext_args
+    if protoProps.signals and obj::signals
+      protoProps.signals = Posture.signals.extend(protoProps.signals, obj::signals)
+    ext_obj = obj.extend(ext_args...)
+    signals.init(ext_obj)
+    ext_obj
 
+  Model: (obj, ext_args...) ->
+    ext_obj = Posture.enhance._default(obj, ext_args...)
+    accessors.init(ext_obj)
+    ext_obj
 
-
-  Collection: (obj, options) ->
+  Collection: (obj, ext_args...) ->
     # Apply our collection enhancements 
+    ext_obj = Posture.enhance._default(obj, ext_args...)
+    ext_obj
 
-  View: (obj, options) ->
+  View: (obj, ext_args...) ->
     # Apply our view enhancements 
+    ext_obj = Posture.enhance._default(obj, ext_args...)
+    ext_obj
 
-  Router: (obj, options) ->
+  Router: (obj, ext_args...) ->
     # Apply our router enhancements 
+    ext_obj = Posture.enhance._default(obj, ext_args...)
+    ext_obj
 
-Posture.init = _.bind( (Backbone) ->
-  defaults =
-    extend:
-      wrap: (func, protoProps, staticProps) ->
-        console.log('extend wrapper firing')
-        # Extend signals if needed
-        if @signals and protoProps.signals
-          new_signals = protoProps.signals
-          protoProps.signals = Posture.Signal.extend(new_signals, @signals)
-
-        # Setup pre and post initialization signals
-        init = (protoProps.initialize or ->)
-        init_opts = 
-          func: init
-          before: (args...) -> 
-            console.log('running initialize before decorator')
-            signals.init(@)
-            if @signal
-              args.unshift 'preInit'
-              @signal.apply(@, args)
-          after: (args...) ->
-            if @signal
-              args.unshift 'postInit'
-              @signal.apply(@, args)
-        protoProps.initialize = decorator(init_opts)
-        protoProps.connect = signals.connect
-        protoProps.signal = signals.signal
-
-        obj = func(protoProps, staticProps)
-
-        Posture.Accessors.init(obj)
-
+Posture.init = (Backbone) ->
 
   _.each Backbone, (obj, name) ->
     # Add Posture magic to Model.extend, Collection.extend, etc.
     if obj.extend and isFn(obj.extend) and Posture.enhance[name]?
-      @[name].extend = (args...) -> 
-        ext_obj = obj.extend.apply(obj, args)
-        Posture.enhance.Model(ext_obj)
-  , Posture)
+      Posture[name].extend = (args...) -> 
+        Posture.enhance[name](obj, args...)
             
