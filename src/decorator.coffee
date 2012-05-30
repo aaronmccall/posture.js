@@ -52,7 +52,7 @@ decorator = (options) ->
     after_return =  if options.after then options.after.apply @, args else orig_return
     # If we are chaining returns, return the last return in the chain
     if options.chain_returns then after_return else orig_return
-  final_func.is_decorated = true
+  final_func._is_decorated_ = true
   # return a bound, decorated function if we have a binding context, else just return the deocorated function ###
   (if (options.context) then _.bind final_func, options.context else final_func)
 
