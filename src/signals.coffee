@@ -1,4 +1,25 @@
 # TODO: package level docs!
+Posture.Validator = validators
+_camel = (prefix, suffix) ->
+  prefix = prefix.toLowerCase()
+  suffixInitial = suffix[0].toUpperCase()
+  suffixRest = suffix.substr(1)
+  "#{prefix}#{suffixInitial}#{suffixRest}"
+
+_prePost_default_methods = ['initialize', 'save', 'destroy', 'render', 'navigate']
+
+_addPreAndPost = (obj, methodName) ->
+  opts = 
+    before: (args...) ->
+      if methodName == 'initialize'
+        @_connectAll()
+      @signal(_camel('pre', methodName), args...)
+    after: (args...) ->
+      @signal(_camel('post', methodName), args...)
+    assignToProto: yes
+
+  decorator.decorateMethod(obj, methodName, opts)
+
 signals =
 
 # Used when extending the signals config of one object with additional callbacks
@@ -38,8 +59,7 @@ signals =
         output[name] = [].concat(source[name])
 
     _.each target, (val, name) ->
-      # console.log('val: %o', val)
-      if not isFn val[0] and _.isArray val[0]
+      if not isFn val[0] and _.isArray val
         val.shift()
       if not source[name]? and val.length > 0
         output[name] = val
@@ -70,19 +90,27 @@ signals =
     ###
     @trigger("signals:#{signal}", args...)
 
-  connectAll: (obj)->
+  connectAll: ->
     ###*
     Iterate the signal callback config (@signals) of this instance and connect callbacks to signals.
     @param: {object} A Backbone.Model, Backbone.Collection, Backbone.View or Backbone.Router instance
     ###
-    if obj.signals
-      _.each obj.signals, (list, signal) ->
+    if @signals
+      _.each @signals, (list, signal) ->
+        connected = 0
         _.each list, (callback) ->
           if isFn callback
+            connected++
             @connect signal, callback
         , @
       , @
 
   init: (obj) ->
+    obj::_connectAll = signals.connectAll
     obj::connect = signals.connect
     obj::signal = signals.signal
+    obj::_has_signals_ = true
+    _.each _prePost_default_methods, (methodName) ->
+      if obj::[methodName] and isFn obj::[methodName]
+        _addPreAndPost(obj, methodName)
+
