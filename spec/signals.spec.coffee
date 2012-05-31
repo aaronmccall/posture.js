@@ -129,3 +129,39 @@ describe "Signals", ->
     Foo = Posture.Router.extend(foo_opts)
     my_foo = new Foo
     my_foo.navigate('/')
+
+  it "Should trigger ready with correct message", (done) ->
+    dinner_opts = 
+      defaults: 
+        ready: 'Dinner is ready!'
+      signals: 
+        preInitialize: [
+          ->
+            @bind('ready', (msg) ->
+              msg.should.equal(dinner_opts.defaults.ready)
+            , @)
+        ]
+        postInitialize: [ 
+          -> 
+            @trigger('ready', @get('ready')) 
+        ]
+        
+
+    Dinner = Posture.Model.extend(dinner_opts)
+    new Dinner
+
+    zuppe_opts =
+      defaults: 
+        ready: "Soup's on!"
+      signals: 
+        preInitialize: [
+          'replace'
+          ->
+            @bind('ready', (msg) ->
+              msg.should.equal(zuppe_opts.defaults.ready)
+              done()
+            , @)
+        ]
+      
+    Zuppe = Posture.Model.extend(zuppe_opts, null, Dinner)
+    new Zuppe
