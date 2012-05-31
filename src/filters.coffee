@@ -49,7 +49,7 @@ filters =
     ###
     filters.regex(val, /^\s+|\s+$/g, '')
 
-  regex: (val, pattern, replacement, regex_args) ->
+  regex: (val, pattern, replacement='', regex_args=null) ->
     ###*
     Base regex filter method.
     @param: {string} val                    String to run the regex filter on.
