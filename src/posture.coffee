@@ -36,7 +36,7 @@ Posture.Decorator = decorator
 
 ###import "signals.coffee" ###
 
-Posture.Signal = signals
+Posture.Signals = signals
 
 ###import "accessors.coffee" ###
 
@@ -48,11 +48,17 @@ Posture.Filter = filters
 
 ###import "validators.coffee" ###
 
+Posture.Validators = validators
+
 Posture.enhance = 
   _default: (obj, ext_args...) ->
+    if ext_args.length is 3
+      new_obj = ext_args.pop()
+
     [protoProps, classProps] = ext_args
+    obj = new_obj or obj
     if protoProps.signals and obj::signals
-      protoProps.signals = Posture.signals.extend(protoProps.signals, obj::signals)
+      protoProps.signals = signals.extend(protoProps.signals, obj::signals)
     ext_obj = obj.extend(ext_args...)
     signals.init(ext_obj)
     ext_obj
