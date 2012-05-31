@@ -9,6 +9,9 @@ _camel = (prefix, suffix) ->
 _prePost_default_methods = ['initialize', 'save', 'destroy', 'render', 'navigate']
 
 _addPreAndPost = (obj, methodName) ->
+  if obj::[methodName].__has_pre_post__
+    return null
+
   opts = 
     before: (args...) ->
       if methodName == 'initialize'
@@ -17,6 +20,7 @@ _addPreAndPost = (obj, methodName) ->
     after: (args...) ->
       @signal(_camel('post', methodName), args...)
     assignToProto: yes
+    indicator: '__has_pre_post__'
 
   decorator.decorateMethod(obj, methodName, opts)
 
@@ -46,14 +50,22 @@ signals =
 
     ### Iterate the source callbacks config ###
     _.each source, (val, name)->
-      ### The first member of the is either a positional argument: 'before' or 'after' OR a callback. ###
-      position = if target[name]? and _.isArray(target[name]) and not isFn target[name][0] then target[name].shift() else 'after'
-      after = position is 'after'
+      ### 
+      The first member of the is either a positional argument: 
+      'before' or 'after' OR a callback. 
+      ###
+      position = if target[name]? and _.isArray(target[name]) and not isFn target[name][0] \
+                 then target[name].shift() else 'after'
       callbacks = target[name] or []
 
       ### If target has this key in its config, then append or prepend source's callbacks as appropriate ###
       if target[name]?
-        output[name] = (if after then source[name] else callbacks).concat(if after then callbacks else source[name])
+        source_callbacks = if position is 'replace' then [] else source[name]
+        output[name] = (
+          if position is 'after' then source_callbacks else callbacks
+        ).concat(
+          if position is 'after' then callbacks else source_callbacks
+        )
       else
         ### If not, just copy source's callbacks ###
         output[name] = [].concat(source[name])
@@ -63,7 +75,6 @@ signals =
         val.shift()
       if not source[name]? and val.length > 0
         output[name] = val
-
     output
 
   connect: (signal, callback, context=@) ->
@@ -88,6 +99,7 @@ signals =
     @param {string} signal  The name of the signal
     @param {array} args     The rest of the arguments
     ###
+    args.unshift @
     @trigger("signals:#{signal}", args...)
 
   connectAll: ->
@@ -97,11 +109,13 @@ signals =
     ###
     if @signals
       _.each @signals, (list, signal) ->
-        connected = 0
+        connected = {}
         _.each list, (callback) ->
           if isFn callback
-            connected++
-            @connect signal, callback
+            if not _.has(connected[signal] or [], callback)
+              @connect signal, callback
+              connected[signal] = connected[signal] or []
+              connected[signal].push(callback)
         , @
       , @
 
