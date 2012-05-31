@@ -27,7 +27,6 @@ decorator = (options) ->
   # If we have a wrapper function, wrap our original function (FN) in an outer wrapper that takes the arguments
   # intended for FN and pushes FN onto the front of the arguments array and then calls the inner wrapper (options.wrap)
   if options.wrap and isFn options.wrap
-    console.log 'wrapping', options.wrap.toString()
     options.func = ((opts) ->
       (args...) ->
         args.unshift opts.func
@@ -52,7 +51,7 @@ decorator = (options) ->
     after_return =  if options.after then options.after.apply @, args else orig_return
     # If we are chaining returns, return the last return in the chain
     if options.chain_returns then after_return else orig_return
-  final_func._is_decorated_ = true
+  final_func[options.indicator or '_is_decorated_'] = true
   # return a bound, decorated function if we have a binding context, else just return the deocorated function ###
   (if (options.context) then _.bind final_func, options.context else final_func)
 
