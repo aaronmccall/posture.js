@@ -44,7 +44,7 @@ Posture.Accessors = accessors
 
 ###import "filters.coffee" ###
 
-Posture.Filter = filters
+Posture.Filters = filters
 
 ###import "validators.coffee" ###
 
