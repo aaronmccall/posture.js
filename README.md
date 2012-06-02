@@ -25,7 +25,7 @@ By providing:
         }
     });
 
-  # calling `new Dinner` should log "Dinner is ready!"
+  // calling `new Dinner` should log "Dinner is ready!"
 
   # Now let's make a new kind of dinner with a different ready message.
     var Zuppe = Posture.Model.extend({
@@ -37,7 +37,7 @@ By providing:
         }
     }, null, Dinner);
 
-  # calling `new Zuppe` should log "Soup's on! Come and get it!"
+  // calling `new Zuppe` should log "Soup's on! Come and get it!"
   ```
 
   This is a very simple (and not terribly useful) example, but it does illustrate that you can create modular functionality that is extendable and flexible. 
