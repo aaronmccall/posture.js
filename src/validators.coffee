@@ -29,7 +29,7 @@ validators =
     Tests that value is not empty.
     @param: {variable} val Value to test for 'emptiness'
     ###
-    if not (_.isEmpty val) and val is not undefined
+    if (_.isNumber(val) and not _.isNaN(val)) or (not _.isEmpty(val) and val is not undefined)
       return true
 
     throw new validators.IsEmpty(val)
