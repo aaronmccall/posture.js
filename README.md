@@ -27,7 +27,7 @@ By providing:
 
   // calling `new Dinner` should log "Dinner is ready!"
 
-  # Now let's make a new kind of dinner with a different ready message.
+  // Now let's make a new kind of dinner with a different ready message.
     var Zuppe = Posture.Model.extend({
         defaults: {
             ready: "Soup's on!"
