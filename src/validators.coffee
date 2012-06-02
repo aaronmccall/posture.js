@@ -29,7 +29,7 @@ validators =
     Tests that value is not empty.
     @param: {variable} val Value to test for 'emptiness'
     ###
-    if not (_.isEmpty val) or (val not in ['', null, undefined])
+    if not (_.isEmpty val) and val is not undefined
       return true
 
     throw new validators.IsEmpty(val)
@@ -47,25 +47,25 @@ validators =
 
 
 class validators.Invalid extends Error
-  constructor: (@custom_msg) ->
+  constructor: (@message) ->
 
   toString: ->
-    if isFn @custom_msg then @custom_msg() else @custom_msg
+    if isFn @message then @message() else @message
 
 class validators.NotLessThan extends validators.Invalid
-  constructor: (@val, @max, @custom_msg=null) ->
-    unless @custom_msg
-      @custom_msg = "#{@val} is greater than the allowed maximum: #{@max}"
+  constructor: (@val, @max, @message=null) ->
+    unless @message
+      @message = "#{@val} is greater than the allowed maximum: #{@max}"
 
 class validators.NotGreaterThan extends validators.Invalid
-  constructor: (@val, @min, @custom_msg=null) ->
-    unless @custom_msg 
-      @custom_msg = "#{@val} is less than the allowed minimum: #{@max}"
+  constructor: (@val, @min, @message=null) ->
+    unless @message 
+      @message = "#{@val} is less than the allowed minimum: #{@max}"
 
     
 
 class validators.IsEmpty extends validators.Invalid
 
-  constructor: (@val, @custom_msg=null) ->
-    unless @custom_msg
-      @custom_msg = "* required"
+  constructor: (@val, @message=null) ->
+    unless @message
+      @message = "'#{val}' is empty"
