@@ -6,7 +6,7 @@ filters =
     @param: {boolean} clean_first   Should we strip out non-numeric characters?
     ###
     val = if not clean_first then val else filters.regex(val, /[^\d\.]+/g, '')
-    parseInt(val) or 0
+    parseInt(val)
 
   decimal: (val, clean_first) ->
     ###*
@@ -15,7 +15,7 @@ filters =
     @param: {boolean} clean_first   Should we strip out non-numeric characters?
     ###
     val = if not clean_first then val else filters.regex(val, /[^\d\.]+/g, '')
-    parseFloat(val) or 0
+    parseFloat(val)
 
   alpha: (val, allowwhitespace) ->
     ###*
@@ -23,7 +23,7 @@ filters =
     @param: {variable} val              Value to clean
     @param: {boolean} allowwhitespace   Should we leave white space characters?
     ###
-    reg = if not allowwhitespace then /[^a-zA-Z]/g else /[^\sa-zA-Z]/g
+    reg = if not allowwhitespace then /[^a-zA-Z]/g else /[^a-zA-Z\s]/g
     filters.regex(val, reg, '')
 
   alnum: (val, allowwhitespace) ->
@@ -32,7 +32,7 @@ filters =
     @param: {variable} val              Value to convert
     @param: {boolean} allowwhitespace   Should we leave white space characters?
     ###
-    reg = if not allowwhitespace then /^\da-zA-Z/g else /^\da-zA-Z\s/g
+    reg = if not allowwhitespace then /[^\da-zA-Z]/g else /[^\da-zA-Z\s]/g
     filters.regex(val, reg, '')
 
   to_json: (val) ->
@@ -60,11 +60,11 @@ filters =
     pattern = if _.isRegExp pattern then pattern else new RegExp(''+pattern, regex_args)
     ('' + val).replace(pattern, replacement)
 
-  bool: (val) ->
+  bool: (val, extended) ->
     ###*
     Convert value to boolean in a smarter way than ordinary JavaScript.
     @param: {variable} val Value to convert to a boolean
     ###
     return !_.isEmpty(val) if _.isObject val or _.isArray val
-    return false if (''+val).toLowerCase() in ['false', 'no', 'off', 'null', '0']
+    return false if extended and (''+val).toLowerCase() in ['false', 'no', 'off', 'null', '0']
     !!val
